@@ -8783,3 +8783,28 @@ document.addEventListener('DOMContentLoaded', function () {
         }
     };
 });
+
+// Setup event handling
+document.addEventListener('DOMContentLoaded', () => {
+    const events = ['click', 'input', 'keyup'];
+
+    events.forEach(event => {
+        // Get all elements with given attribute
+        document.querySelectorAll(`[on${event}]`).forEach(element => {
+            const handler = element.getAttribute(`on${event}`);
+
+            if (handler) {
+                // Create a function from the attribute value
+                const eventHandler = new Function('event', handler);
+
+                // Attach the event handler to the element 
+                element.addEventListener(event, () => {
+                    eval(handler);
+                });
+
+                // Remove the attribute
+                element.removeAttribute(`on${event}`);
+            }
+        });
+    });
+});
