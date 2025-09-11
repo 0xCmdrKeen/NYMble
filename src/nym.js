@@ -1,6 +1,7 @@
 import { broadcastRelays, monitorRelays, nosflareRelay } from "./nym/relays";
 import { defaultEmojis, allEmojis, emojiMap } from "./nym/emojis";
 import * as NostrTools from 'nostr-tools';
+import QRCode from 'qrcode';
 
 // NYM - Ephemeral Nostr Chat
 export class NYM {
@@ -1428,13 +1429,14 @@ export class NYM {
         if (!element) return;
 
         // Create QR code using canvas
-        const qr = new QRCode(element, {
-            text: text,
+        QRCode.toCanvas(element, text, {
             width: 256,
             height: 256,
-            colorDark: "#000000",
-            colorLight: "#ffffff",
-            correctLevel: QRCode.CorrectLevel.L
+            color: {
+                dark: "#000000",
+                light: "#ffffff",
+            },
+            errorCorrectionLevel: 'L'
         });
     }
 
@@ -1943,13 +1945,15 @@ export class NYM {
 
         // Generate QR using the invoice
         try {
-            new QRCode(qrDiv, {
-                text: invoice.pr,  // Just the raw invoice, no lightning: prefix
+            // Just the raw invoice, no lightning: prefix
+            QRCode.toCanvas(qrDiv, invoice.pr, {
                 width: 200,
                 height: 200,
-                colorDark: "#000000",
-                colorLight: "#ffffff",
-                correctLevel: QRCode.CorrectLevel.L
+                color: {
+                    dark: "#000000",
+                    light: "#ffffff",
+                },
+                errorCorrectionLevel: 'L'
             });
 
             console.log('Generated QR code for invoice:', invoice.pr.substring(0, 50) + '...');

@@ -475,11 +475,6 @@ document.addEventListener('DOMContentLoaded', () => {
 
     preConnect();
 
-    // Add QRCode library check
-    if (typeof QRCode === 'undefined') {
-        console.warn('QRCode library not loaded, falling back to text display for invoices');
-    }
-
     // Auto-focus nickname input
     document.getElementById('nymInput').focus();
 
