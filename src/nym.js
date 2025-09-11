@@ -4561,7 +4561,6 @@ ${Object.entries(this.allEmojis).map(([category, emojis]) => `
 
             const tags = [
                 ['n', this.nym], // nym tag
-                ['client', 'NYM']
             ];
 
             let kind;
@@ -4618,8 +4617,6 @@ ${Object.entries(this.allEmojis).map(([category, emojis]) => `
                 tags: [
                     ['d', channelName],
                     ['relay', this.relayUrl], // Add relay tag
-                    ['about', `Channel #${channelName} created via NYM`],
-                    ['client', 'NYM']
                 ],
                 content: JSON.stringify({
                     name: channelName,
