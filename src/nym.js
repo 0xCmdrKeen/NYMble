@@ -1084,7 +1084,7 @@ export class NYM {
         // Subscribe to messages
         const messagesSub = [
             "REQ",
-            "nym-" + Math.random().toString(36).substring(7),
+            "msgs-" + Math.random().toString(36).substring(2),
             {
                 kinds: [20000, 23333],
                 limit: 200
@@ -1095,7 +1095,7 @@ export class NYM {
         // Subscribe to reactions with k tag filter
         const reactionsSub = [
             "REQ",
-            "reactions-" + Math.random().toString(36).substring(7),
+            "reactions-" + Math.random().toString(36).substring(2),
             {
                 kinds: [7],
                 "#k": ["20000", "23333", "4"], // Only reactions for our kinds
@@ -1108,7 +1108,7 @@ export class NYM {
         // Subscribe to ALL zap receipts (they contain the e tag for message ID)
         const zapsSub = [
             "REQ",
-            "zaps-" + Math.random().toString(36).substring(7),
+            "zaps-" + Math.random().toString(36).substring(2),
             {
                 kinds: [9735], // Zap receipt events
                 limit: 1000,
@@ -1121,7 +1121,7 @@ export class NYM {
         if (this.pubkey) {
             const pmSub = [
                 "REQ",
-                "pms-" + Math.random().toString(36).substring(7),
+                "pms-" + Math.random().toString(36).substring(2),
                 {
                     kinds: [4],
                     "#p": [this.pubkey],
@@ -1513,7 +1513,7 @@ export class NYM {
         }
 
         return new Promise((resolve) => {
-            const subId = "ln-addr-" + Math.random().toString(36).substring(7);
+            const subId = "ln-addr-" + Math.random().toString(36).substring(2);
             let foundAddress = false;
             let messageHandlers = [];
 
@@ -1730,7 +1730,7 @@ export class NYM {
         // Create a request for the user's profile
         const subscription = [
             "REQ",
-            "profile-ln-" + Math.random().toString(36).substring(7),
+            "profile-ln-" + Math.random().toString(36).substring(2),
             {
                 kinds: [0],
                 authors: [pubkey],
@@ -2014,7 +2014,7 @@ export class NYM {
         // Subscribe to zap receipt events (kind 9735) for this specific event
         const subscription = [
             "REQ",
-            "zap-receipt-" + Math.random().toString(36).substring(7),
+            "zap-receipt-" + Math.random().toString(36).substring(2),
             {
                 kinds: [9735],
                 "#e": [this.currentZapTarget.messageId],
@@ -2345,7 +2345,7 @@ export class NYM {
                 // Request relay metadata events (NIP-66 kind 30066)
                 const subscription = [
                     "REQ",
-                    "relay-list-" + Math.random().toString(36).substring(7),
+                    "relay-list-" + Math.random().toString(36).substring(2),
                     {
                         kinds: [30066], // NIP-66 relay metadata
                         limit: 1000
@@ -2430,7 +2430,7 @@ export class NYM {
         // Subscribe to both ephemeral and channel messages
         const subscription = [
             "REQ",
-            "nym-" + Math.random().toString(36).substring(7),
+            "msgs-" + Math.random().toString(36).substring(2),
             {
                 kinds: [20000, 23333], // Geohash and standard channels
                 limit: 200
@@ -2444,7 +2444,7 @@ export class NYM {
         // Subscribe to reactions (NIP-25) with filters for our specific kinds
         const subscription = [
             "REQ",
-            "reactions-" + Math.random().toString(36).substring(7),
+            "reactions-" + Math.random().toString(36).substring(2),
             {
                 kinds: [7], // Reaction events
                 "#k": ["20000", "23333", "4"], // Only reactions to our supported kinds
@@ -2458,7 +2458,7 @@ export class NYM {
         // Subscribe to zap receipts for ALL messages we might care about
         const zapSubscription = [
             "REQ",
-            "zaps-" + Math.random().toString(36).substring(7),
+            "zaps-" + Math.random().toString(36).substring(2),
             {
                 kinds: [9735], // Zap receipt events
                 limit: 1000,
@@ -2477,7 +2477,7 @@ export class NYM {
             if (messageIds.length > 0) {
                 const channelZapSubscription = [
                     "REQ",
-                    "channel-zaps-" + Math.random().toString(36).substring(7),
+                    "channel-zaps-" + Math.random().toString(36).substring(2),
                     {
                         kinds: [9735],
                         "#e": messageIds.slice(0, 100), // Limit to 100 most recent messages
@@ -2495,7 +2495,7 @@ export class NYM {
         // Only subscribe to legacy NIP-04 support for compatibility
         const legacySubscription = [
             "REQ",
-            "pms-legacy-" + Math.random().toString(36).substring(7),
+            "pms-legacy-" + Math.random().toString(36).substring(2),
             {
                 kinds: [4], // NIP-04 encrypted direct messages
                 "#p": [this.pubkey],
@@ -2512,7 +2512,7 @@ export class NYM {
         // Request NIP-78 settings (kind 30078)
         const subscription = [
             "REQ",
-            "settings-" + Math.random().toString(36).substring(7),
+            "settings-" + Math.random().toString(36).substring(2),
             {
                 kinds: [30078],
                 authors: [this.pubkey],
@@ -2622,7 +2622,7 @@ export class NYM {
         // Subscribe to recent channel creation/message events to discover channels
         const discoverySubscription = [
             "REQ",
-            "channel-discovery-" + Math.random().toString(36).substring(7),
+            "channel-discovery-" + Math.random().toString(36).substring(2),
             {
                 kinds: [23333, 20000], // Both standard and geohash channels
                 limit: 500, // Get more events to discover more channels
@@ -4480,7 +4480,7 @@ ${Object.entries(this.allEmojis).map(([category, emojis]) => `
                 resolve();
             }, 3000);
 
-            const subId = "profile-" + Math.random().toString(36).substring(7);
+            const subId = "profile-" + Math.random().toString(36).substring(2);
             const originalHandler = this.handleRelayMessage.bind(this);
 
             this.handleRelayMessage = (msg) => {
