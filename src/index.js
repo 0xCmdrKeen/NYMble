@@ -1,5 +1,6 @@
 import './style.css'
 import { NYM } from './nym.js'
+import { getPublicKey } from 'nostr-tools'
 
 // Global instance
 const nym = new NYM();
@@ -237,7 +238,7 @@ async function checkSavedConnection() {
 
             // Restore from saved nsec
             nym.privkey = nym.decodeNsec(savedNsec);
-            nym.pubkey = window.NostrTools.getPublicKey(nym.privkey);
+            nym.pubkey = getPublicKey(nym.privkey);
             nym.connectionMode = 'nsec'; // Set connection mode
 
             // Set a default nym while loading profile
@@ -361,7 +362,7 @@ async function initializeNym() {
 
             // Decode NSEC to get private key
             nym.privkey = nym.decodeNsec(nsecValue);
-            nym.pubkey = window.NostrTools.getPublicKey(nym.privkey);
+            nym.pubkey = getPublicKey(nym.privkey);
 
             // Fetch existing profile BEFORE setting nym
             await nym.fetchProfileFromRelay(nym.pubkey);

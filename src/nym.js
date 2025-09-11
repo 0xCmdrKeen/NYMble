@@ -1,5 +1,6 @@
 import { broadcastRelays, monitorRelays, nosflareRelay } from "./nym/relays";
 import { defaultEmojis, allEmojis, emojiMap } from "./nym/emojis";
+import * as NostrTools from 'nostr-tools';
 
 // NYM - Ephemeral Nostr Chat
 export class NYM {
@@ -290,8 +291,8 @@ export class NYM {
     decodeNsec(nsec) {
         try {
             // Use nostr-tools nip19 decode
-            if (window.NostrTools && window.NostrTools.nip19) {
-                const decoded = window.NostrTools.nip19.decode(nsec);
+            if (NostrTools && NostrTools.nip19) {
+                const decoded = NostrTools.nip19.decode(nsec);
                 if (decoded.type === 'nsec') {
                     return decoded.data;
                 }
@@ -444,7 +445,7 @@ export class NYM {
     async initialize() {
         try {
             // Check if nostr-tools is loaded
-            if (typeof window.NostrTools === 'undefined') {
+            if (typeof NostrTools === 'undefined') {
                 throw new Error('nostr-tools not loaded');
             }
 
@@ -1711,7 +1712,7 @@ export class NYM {
             if (this.connectionMode === 'extension' && window.nostr) {
                 signedEvent = await window.nostr.signEvent(profileEvent);
             } else if (this.privkey) {
-                signedEvent = window.NostrTools.finalizeEvent(profileEvent, this.privkey);
+                signedEvent = NostrTools.finalizeEvent(profileEvent, this.privkey);
             }
 
             if (signedEvent) {
@@ -1857,7 +1858,7 @@ export class NYM {
             if (window.nostr && !this.privkey) {
                 signedEvent = await window.nostr.signEvent(zapRequest);
             } else if (this.privkey) {
-                signedEvent = window.NostrTools.finalizeEvent(zapRequest, this.privkey);
+                signedEvent = NostrTools.finalizeEvent(zapRequest, this.privkey);
             }
 
             return signedEvent;
@@ -2559,7 +2560,7 @@ export class NYM {
             if (this.connectionMode === 'extension' && window.nostr) {
                 signedEvent = await window.nostr.signEvent(event);
             } else if ((this.connectionMode === 'nsec' || this.connectionMode === 'ephemeral') && this.privkey) {
-                signedEvent = window.NostrTools.finalizeEvent(event, this.privkey);
+                signedEvent = NostrTools.finalizeEvent(event, this.privkey);
             } else {
                 console.log('Cannot sign settings - no signing method available');
                 return;
@@ -3680,7 +3681,7 @@ ${Object.entries(this.allEmojis).map(([category, emojis]) => `
             if (window.nostr && !this.privkey) {
                 signedEvent = await window.nostr.signEvent(event);
             } else if (this.privkey) {
-                signedEvent = window.NostrTools.finalizeEvent(event, this.privkey);
+                signedEvent = NostrTools.finalizeEvent(event, this.privkey);
             }
 
             if (signedEvent) {
@@ -3936,8 +3937,8 @@ ${Object.entries(this.allEmojis).map(([category, emojis]) => `
     async decryptNIP04(content, pubkey, privkey) {
         try {
             // Use nostr-tools nip04 decrypt function
-            if (typeof window.NostrTools.nip04 !== 'undefined') {
-                const decrypted = await window.NostrTools.nip04.decrypt(privkey, pubkey, content);
+            if (typeof NostrTools.nip04 !== 'undefined') {
+                const decrypted = await NostrTools.nip04.decrypt(privkey, pubkey, content);
                 return decrypted;
             }
 
@@ -3958,7 +3959,7 @@ ${Object.entries(this.allEmojis).map(([category, emojis]) => `
 
             // Generate shared secret using secp256k1
             // Since we're using nostr-tools, we can use its internal functions
-            const sharedPoint = window.NostrTools.getSharedSecret(privkeyBytes, '02' + pubkey);
+            const sharedPoint = NostrTools.getSharedSecret(privkeyBytes, '02' + pubkey);
             const sharedSecret = sharedPoint.substring(2, 66);
 
             // Derive key using SHA-256
@@ -4006,8 +4007,8 @@ ${Object.entries(this.allEmojis).map(([category, emojis]) => `
 
             // Try a simpler approach if nostr-tools methods are available
             try {
-                if (window.NostrTools && window.NostrTools.nip04) {
-                    return await window.NostrTools.nip04.decrypt(privkey, pubkey, content);
+                if (NostrTools && NostrTools.nip04) {
+                    return await NostrTools.nip04.decrypt(privkey, pubkey, content);
                 }
             } catch (fallbackError) {
                 console.error('Fallback decryption also failed:', fallbackError);
@@ -4020,8 +4021,8 @@ ${Object.entries(this.allEmojis).map(([category, emojis]) => `
     async encryptNIP04(content, pubkey, privkey) {
         try {
             // Use nostr-tools nip04 encrypt function
-            if (typeof window.NostrTools.nip04 !== 'undefined') {
-                const encrypted = await window.NostrTools.nip04.encrypt(privkey, pubkey, content);
+            if (typeof NostrTools.nip04 !== 'undefined') {
+                const encrypted = await NostrTools.nip04.encrypt(privkey, pubkey, content);
                 return encrypted;
             }
 
@@ -4038,7 +4039,7 @@ ${Object.entries(this.allEmojis).map(([category, emojis]) => `
             const pubkeyBytes = new Uint8Array(pubkey.match(/.{1,2}/g).map(byte => parseInt(byte, 16)));
 
             // Generate shared secret using secp256k1
-            const sharedPoint = window.NostrTools.getSharedSecret(privkeyBytes, '02' + pubkey);
+            const sharedPoint = NostrTools.getSharedSecret(privkeyBytes, '02' + pubkey);
             const sharedSecret = sharedPoint.substring(2, 66); // Remove '02' prefix and take x coordinate
 
             // Derive key using SHA-256
@@ -4089,8 +4090,8 @@ ${Object.entries(this.allEmojis).map(([category, emojis]) => `
 
             // Try a simpler approach if nostr-tools methods are available
             try {
-                if (window.NostrTools && window.NostrTools.nip04) {
-                    return await window.NostrTools.nip04.encrypt(privkey, pubkey, content);
+                if (NostrTools && NostrTools.nip04) {
+                    return await NostrTools.nip04.encrypt(privkey, pubkey, content);
                 }
             } catch (fallbackError) {
                 console.error('Fallback encryption also failed:', fallbackError);
@@ -4187,7 +4188,7 @@ ${Object.entries(this.allEmojis).map(([category, emojis]) => `
             if (window.nostr && !this.privkey) {
                 signedEvent = await window.nostr.signEvent(event);
             } else if (this.privkey) {
-                signedEvent = window.NostrTools.finalizeEvent(event, this.privkey);
+                signedEvent = NostrTools.finalizeEvent(event, this.privkey);
             } else {
                 throw new Error('No signing method available');
             }
@@ -4434,8 +4435,8 @@ ${Object.entries(this.allEmojis).map(([category, emojis]) => `
     async generateKeypair() {
         try {
             // Generate ephemeral keys using nostr-tools bundle functions
-            const sk = window.NostrTools.generateSecretKey();
-            const pk = window.NostrTools.getPublicKey(sk);
+            const sk = NostrTools.generateSecretKey();
+            const pk = NostrTools.getPublicKey(sk);
 
             this.privkey = sk;
             this.pubkey = pk;
@@ -4585,7 +4586,7 @@ ${Object.entries(this.allEmojis).map(([category, emojis]) => `
                 signedEvent = await window.nostr.signEvent(event);
             } else if (this.privkey) {
                 // Use finalizeEvent with ephemeral key
-                signedEvent = window.NostrTools.finalizeEvent(event, this.privkey);
+                signedEvent = NostrTools.finalizeEvent(event, this.privkey);
             } else {
                 throw new Error('No signing method available');
             }
@@ -4629,7 +4630,7 @@ ${Object.entries(this.allEmojis).map(([category, emojis]) => `
             if (window.nostr && !this.privkey) {
                 signedEvent = await window.nostr.signEvent(event);
             } else if (this.privkey) {
-                signedEvent = window.NostrTools.finalizeEvent(event, this.privkey);
+                signedEvent = NostrTools.finalizeEvent(event, this.privkey);
             } else {
                 throw new Error('No signing method available');
             }
@@ -4676,7 +4677,7 @@ ${Object.entries(this.allEmojis).map(([category, emojis]) => `
             if (window.nostr && !this.privkey) {
                 signedEvent = await window.nostr.signEvent(uploadEvent);
             } else if (this.privkey) {
-                signedEvent = window.NostrTools.finalizeEvent(uploadEvent, this.privkey);
+                signedEvent = NostrTools.finalizeEvent(uploadEvent, this.privkey);
             } else {
                 throw new Error('No signing method available');
             }

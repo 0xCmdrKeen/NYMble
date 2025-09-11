@@ -8,6 +8,9 @@
     "build": "vite build",
     "preview": "vite preview"
   },
+  "dependencies": {
+    "nostr-tools": "^2.16.2"
+  },
   "devDependencies": {
     "vite": "^7.1.2"
   }
