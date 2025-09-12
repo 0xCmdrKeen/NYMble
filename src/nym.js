@@ -6861,7 +6861,7 @@ ${Object.entries(this.allEmojis).map(([category, emojis]) => `
             console.log(`Getting location for geohash ${geohash}: ${location}`);
 
             if (location) {
-                fullTitle = `${displayName} <br/><font size="2" style="color: var(--text-dim);text-shadow:none;"><a style="color: var(--text-dim);text-shadow:none;" href="https://www.openstreetmap.org/search?query=${location}&zoom=5&minlon=-138.55957031250003&minlat=11.953349393643416&maxlon=-97.69042968750001&maxlat=55.25407706707272#map=5/47.81/5.63" target="_blank" rel="noopener">${location}</a></font>`;
+                fullTitle = `${displayName} <br/><font size="2" style="color: var(--text-dim);text-shadow:none;"><a style="color: var(--text-dim);text-shadow:none;" href="https://www.geohash.es/decode?geohash=${geohash}" target="_blank" rel="noopener">${location}</a></font>`;
 
                 if (this.userLocation && this.settings.sortByProximity) {
                     try {
@@ -6870,7 +6870,7 @@ ${Object.entries(this.allEmojis).map(([category, emojis]) => `
                             this.userLocation.lat, this.userLocation.lng,
                             coords.lat, coords.lng
                         );
-                        fullTitle = `${displayName} <br/><font size="2" style="color: var(--text-dim);text-shadow:none;"><a style="color: var(--text-dim);text-shadow:none;" href="https://www.openstreetmap.org/search?query=${location}&zoom=5&minlon=-138.55957031250003&minlat=11.953349393643416&maxlon=-97.69042968750001&maxlat=55.25407706707272#map=5/47.81/5.63" target="_blank" rel="noopener">${location}</a> (${distance.toFixed(1)}km)</font>`;
+                        fullTitle = `${displayName} <br/><font size="2" style="color: var(--text-dim);text-shadow:none;"><a style="color: var(--text-dim);text-shadow:none;" href="https://www.geohash.es/decode?geohash=${geohash}" target="_blank" rel="noopener">${location}</a> (${distance.toFixed(1)}km)</font>`;
                     } catch (e) {
                         console.error('Distance calculation error:', e);
                     }
