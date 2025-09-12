@@ -4433,22 +4433,74 @@ ${Object.entries(this.allEmojis).map(([category, emojis]) => `
         return lowerContent.includes(`@${lowerNym}`) || lowerContent.includes(lowerNym);
     }
 
-    async generateKeypair() {
+    async generateKeypair(suffix) {
         try {
-            // Generate ephemeral keys using nostr-tools bundle functions
-            const sk = NostrTools.generateSecretKey();
-            const pk = NostrTools.getPublicKey(sk);
+            // Generate ephemeral keys using web worker
+            const { privateKey, publicKeyHex } = await this.generateKeypairWorker(suffix);
+            
+            this.privkey = privateKey;
+            this.pubkey = publicKeyHex;
 
-            this.privkey = sk;
-            this.pubkey = pk;
+            console.log('Generated ephemeral keypair:');
+            console.log(NostrTools.nip19.nsecEncode(privateKey));
+            console.log(NostrTools.nip19.npubEncode(publicKeyHex));
 
-            console.log('Generated ephemeral keypair');
-
-            return { privkey: sk, pubkey: pk };
+            return { privkey: this.privkey, pubkey: this.pubkey };
         } catch (error) {
             console.error('Failed to generate keypair:', error);
             throw error;
         }
+    }
+
+    async generateKeypairWorker(targetSuffix) {
+        // Create worker
+        const worker = new Worker(
+            new URL('./workers/profileGenerationWorker.js', import.meta.url),
+            { type: 'module' }
+        );
+
+        return new Promise((resolve, reject) => {
+            // Set up worker message handler
+            const handleWorkerMessage = (e) => {
+                const { type, data } = e.data;
+                
+                switch (type) {
+                case 'PROFILE_GENERATED': {
+                    resolve(data.profile);
+                    break;
+                }
+                    
+                // case 'GENERATION_PROGRESS':
+                //     // Update progress based on attempts
+                //     setProgress(Math.min((data.found / 64) * 100, 99));
+                //     break;
+                    
+                case 'GENERATION_COMPLETE':
+                    worker.terminate();
+                    break;
+                    
+                case 'GENERATION_CANCELLED':
+                    reject('Profile generation cancelled');
+                    break;
+                    
+                case 'GENERATION_ERROR':
+                    reject(data.error || 'Profile generation failed');
+                    break;
+                }
+            };
+
+            worker.onmessage = handleWorkerMessage;
+
+            // Start generation
+            worker.postMessage({
+                command: 'START_GENERATION',
+                data: {
+                    username: this.nym,
+                    targetSuffix,
+                    maxProfiles: 1
+                }
+            });
+        });
     }
 
     async useExtension() {

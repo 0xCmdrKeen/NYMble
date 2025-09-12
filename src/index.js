@@ -326,12 +326,16 @@ async function initializeNym() {
         nym.connectionMode = mode; // Store connection mode
 
         // Get or generate nym first
-        const nymInput = document.getElementById('nymInput').value.trim();
+        const [nymInput, suffix] = document.getElementById('nymInput').value.trim().split('#');
+        const status = document.querySelector('#setupModal .status');
+        const button = document.querySelector('#setupModal .send-btn');
+        status.hidden = false;
+        button.disabled = true;
 
         // Handle different connection modes
         if (mode === 'ephemeral') {
             nym.nym = nymInput || nym.generateRandomNym();
-            await nym.generateKeypair();
+            await nym.generateKeypair(suffix);
             document.getElementById('currentNym').textContent = nym.nym;
             document.getElementById('nymSuffix').textContent = nym.getPubkeySuffix(nym.pubkey);
             localStorage.removeItem('nym_connection_mode');
@@ -413,6 +417,8 @@ async function initializeNym() {
 
         // Close setup modal
         closeModal('setupModal');
+        button.disabled = false;
+        status.hidden = true;
 
         // Show welcome message
         const modeText = mode === 'ephemeral' ? 'ephemeral' : 'persistent Nostr';
