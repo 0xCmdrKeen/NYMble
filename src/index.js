@@ -697,7 +697,7 @@ document.addEventListener('DOMContentLoaded', () => {
                 const eventHandler = new Function('event', handler);
 
                 // Attach the event handler to the element 
-                element.addEventListener(event, () => {
+                element.addEventListener(event, function() {
                     eval(handler);
                 });
 
