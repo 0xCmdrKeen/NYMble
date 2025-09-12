@@ -3341,16 +3341,15 @@ export class NYM {
         const addBtn = document.createElement('span');
         addBtn.className = 'add-reaction-btn';
         addBtn.innerHTML = `
-<svg viewBox="0 0 24 24">
-    <circle cx="12" cy="12" r="10"></circle>
-    <circle cx="9" cy="9" r="1"></circle>
-    <circle cx="15" cy="9" r="1"></circle>
-    <path d="M8 14s1.5 2 4 2 4-2 4-2"></path>
-    <circle cx="18" cy="6" r="5" fill="var(--text)" stroke="none"></circle>
-    <line x1="18" y1="4" x2="18" y2="8" stroke="var(--bg)" stroke-width="1.5" stroke-linecap="round"></line>
-    <line x1="16" y1="6" x2="20" y2="6" stroke="var(--bg)" stroke-width="1.5" stroke-linecap="round"></line>
-</svg>
-`;
+            <svg viewBox="0 0 24 24">
+                <circle cx="12" cy="12" r="10"></circle>
+                <circle cx="9" cy="9" r="1"></circle>
+                <circle cx="15" cy="9" r="1"></circle>
+                <path d="M8 14s1.5 2 4 2 4-2 4-2"></path>
+                <circle cx="18" cy="6" r="5" fill="var(--text)" stroke="none"></circle>
+                <line x1="18" y1="4" x2="18" y2="8" stroke="var(--bg)" stroke-width="1.5" stroke-linecap="round"></line>
+                <line x1="16" y1="6" x2="20" y2="6" stroke="var(--bg)" stroke-width="1.5" stroke-linecap="round"></line>
+            </svg>`;
         addBtn.title = 'Add reaction';
         addBtn.onclick = (e) => {
             e.stopPropagation();
@@ -4936,15 +4935,15 @@ ${Object.entries(this.allEmojis).map(([category, emojis]) => `
 
             // Show reaction button for all messages with valid IDs (including PMs)
             const reactionButton = isValidEventId && !isMobile ? `
-<button class="reaction-btn" onclick="nym.showReactionPicker('${message.id}', this)">
-    <svg viewBox="0 0 24 24">
-        <circle cx="12" cy="12" r="10"></circle>
-        <path d="M8 14s1.5 2 4 2 4-2 4-2"></path>
-        <circle cx="9" cy="9" r="1"></circle>
-        <circle cx="15" cy="9" r="1"></circle>
-    </svg>
-</button>
-` : '';
+                <button class="reaction-btn" onclick="nym.showReactionPicker('${message.id}', this)">
+                    <svg viewBox="0 0 24 24">
+                        <circle cx="12" cy="12" r="10"></circle>
+                        <path d="M8 14s1.5 2 4 2 4-2 4-2"></path>
+                        <circle cx="9" cy="9" r="1"></circle>
+                        <circle cx="15" cy="9" r="1"></circle>
+                    </svg>
+                </button>
+                ` : '';
 
             // Build the initial HTML with quote detection
             const formattedContent = this.formatMessageWithQuotes(message.content);
@@ -4955,11 +4954,11 @@ ${Object.entries(this.allEmojis).map(([category, emojis]) => `
             const authorWithHtml = `${escapedAuthorBase}<span class="nym-suffix">#${this.getPubkeySuffix(message.pubkey)}</span>`;
 
             messageEl.innerHTML = `
-    ${time ? `<span class="message-time">${time}</span>` : ''}
-    <span class="message-author ${authorClass} ${userColorClass}">${displayAuthor}${verifiedBadge}:</span>
-    <span class="message-content ${userColorClass}">${formattedContent}</span>
-    ${reactionButton}
-`;
+                ${time ? `<span class="message-time">${time}</span>` : ''}
+                <span class="message-author ${authorClass} ${userColorClass}">${displayAuthor}${verifiedBadge}:</span>
+                <span class="message-content ${userColorClass}">${formattedContent}</span>
+                ${reactionButton}
+            `;
 
             const authorSpan = messageEl.querySelector('.message-author');
             if (authorSpan) {
