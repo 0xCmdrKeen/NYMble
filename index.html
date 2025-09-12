@@ -49,7 +49,9 @@
                 <div class="tagline">Ephemeral Nostr Chat</div>
                 <div class="nym-display" onclick="editNick()">
                     <div class="nym-label">Your Nym (click to edit)</div>
-                    <div class="nym-value" id="currentNym">anonymous</div>
+                    <div class="nym-value">
+                        <span id="currentNym">anonymous</span>#<span id="nymSuffix">????</span>
+                    </div>
                 </div>
                 <div class="status-indicator">
                     <span class="status-dot" id="statusDot"></span>

@@ -885,10 +885,7 @@ export class NYM {
         const adj = adjectives[Math.floor(Math.random() * adjectives.length)];
         const noun = nouns[Math.floor(Math.random() * nouns.length)];
 
-        // Use the last 4 chars of pubkey
-        const suffix = this.getPubkeySuffix(this.pubkey);
-
-        return `${adj}_${noun}#${suffix}`;
+        return `${adj}_${noun}`;
     }
 
     formatNymWithPubkey(nym, pubkey) {

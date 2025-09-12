@@ -330,9 +330,10 @@ async function initializeNym() {
 
         // Handle different connection modes
         if (mode === 'ephemeral') {
-            await nym.generateKeypair();
             nym.nym = nymInput || nym.generateRandomNym();
+            await nym.generateKeypair();
             document.getElementById('currentNym').textContent = nym.nym;
+            document.getElementById('nymSuffix').textContent = nym.getPubkeySuffix(nym.pubkey);
             localStorage.removeItem('nym_connection_mode');
 
         } else if (mode === 'extension') {
