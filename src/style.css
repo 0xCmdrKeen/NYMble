@@ -2273,3 +2273,11 @@ body.theme-ghost::before {
             rgba(255, 255, 255, 0.02) 2px,
             rgba(255, 255, 255, 0.02) 4px);
 }
+
+body.theme-bitchat .message.self .bitchat-theme,
+body.theme-bitchat .message-author.self .nym-suffix {
+    color: #FF9500;
+}
+body.theme-bitchat .message.self .bitchat-theme {
+    font-weight: bold;
+}

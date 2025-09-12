@@ -1,5 +1,6 @@
 import { broadcastRelays, monitorRelays, nosflareRelay } from "./nym/relays";
 import { defaultEmojis, allEmojis, emojiMap } from "./nym/emojis";
+import { colorForPeerSeed } from "./nym/bitchatColors";
 import * as NostrTools from 'nostr-tools';
 import QRCode from 'qrcode';
 
@@ -120,10 +121,7 @@ export class NYM {
             hash = pubkey.charCodeAt(i) + ((hash << 5) - hash);
         }
 
-        // Generate HSL color (ensures good visibility)
-        const hue = Math.abs(hash) % 360;
-        const saturation = 70 + (Math.abs(hash) % 30); // 70-100%
-        const lightness = 40 + (Math.abs(hash) % 30);  // 40-70%
+        const color = colorForPeerSeed(`nostr:${pubkey.toLowerCase()}`);
 
         // Create unique class name
         const uniqueClass = `bitchat-user-${Math.abs(hash) % 1000}`;  // Changed prefix
@@ -133,13 +131,13 @@ export class NYM {
             const style = document.createElement('style');
             style.id = uniqueClass;
             style.textContent = `
-        .${uniqueClass} {
-            color: hsl(${hue}, ${saturation}%, ${lightness}%) !important;
-        }
-        .${uniqueClass} .nym-suffix {
-            color: hsl(${hue}, ${saturation}%, ${lightness}%) !important;
-        }
-    `;
+                .${uniqueClass} {
+                    color: ${color.css} !important;
+                }
+                .${uniqueClass} .nym-suffix {
+                    color: ${color.css} !important;
+                }
+            `;
             document.head.appendChild(style);
         }
 
