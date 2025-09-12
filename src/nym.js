@@ -4957,7 +4957,6 @@ ${Object.entries(this.allEmojis).map(([category, emojis]) => `
                 ${time ? `<span class="message-time">${time}</span>` : ''}
                 <span class="message-author ${authorClass} ${userColorClass}">${displayAuthor}${verifiedBadge}:</span>
                 <span class="message-content ${userColorClass}">${formattedContent}</span>
-                ${reactionButton}
             `;
 
             const authorSpan = messageEl.querySelector('.message-author');
