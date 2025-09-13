@@ -607,7 +607,7 @@ export class NYM {
             document.getElementById('contextMenu').classList.remove('active');
         });
 
-        document.getElementById('ctxReact').addEventListener('click', () => {
+        document.getElementById('ctxReact')?.addEventListener('click', () => {
             if (this.contextMenuData && this.contextMenuData.messageId) {
                 document.getElementById('contextMenu').classList.remove('active');
 
@@ -711,7 +711,7 @@ export class NYM {
 
         // Show/hide React option
         const reactOption = document.getElementById('ctxReact');
-        reactOption.style.display = messageId ? 'block' : 'none';
+        reactOption && (reactOption.style.display = messageId ? 'block' : 'none');
 
         // Add active class first to make visible
         menu.classList.add('active');
