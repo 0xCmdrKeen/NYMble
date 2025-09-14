@@ -579,6 +579,32 @@ export class NYM {
             }
         });
 
+        // Add hug handler
+        let hugOption = document.getElementById('ctxHug');
+        if (!hugOption) {
+            // Create slap option if it doesn't exist
+            hugOption = document.createElement('div');
+            hugOption.className = 'context-menu-item';
+            hugOption.id = 'ctxHug';
+            hugOption.textContent = 'Give a Hug';
+
+            // Insert after PM option
+            const pmOption = document.getElementById('ctxPM');
+            if (pmOption && pmOption.nextSibling) {
+                pmOption.parentNode.insertBefore(hugOption, pmOption.nextSibling);
+            } else if (pmOption) {
+                pmOption.parentNode.appendChild(hugOption);
+            }
+        }
+
+        // Add the click handler for hug
+        hugOption.addEventListener('click', () => {
+            if (this.contextMenuData) {
+                this.cmdHug(this.contextMenuData.nym);
+            }
+            document.getElementById('contextMenu').classList.remove('active');
+        });
+
         // Add slap handler
         let slapOption = document.getElementById('ctxSlap');
         if (!slapOption) {
@@ -588,12 +614,12 @@ export class NYM {
             slapOption.id = 'ctxSlap';
             slapOption.textContent = 'Slap with Trout';
 
-            // Insert after PM option
-            const pmOption = document.getElementById('ctxPM');
-            if (pmOption && pmOption.nextSibling) {
-                pmOption.parentNode.insertBefore(slapOption, pmOption.nextSibling);
+            // Insert after hug option
+            const hugOption = document.getElementById('ctxHug');
+            if (hugOption && hugOption.nextSibling) {
+                hugOption.parentNode.insertBefore(slapOption, hugOption.nextSibling);
             } else if (pmOption) {
-                pmOption.parentNode.appendChild(slapOption);
+                hugOption.parentNode.appendChild(slapOption);
             }
         }
 
@@ -658,6 +684,24 @@ export class NYM {
         const parsedNym = this.parseNymFromDisplay(nym);
         this.contextMenuData = { nym: parsedNym, pubkey, content, messageId };
 
+        // Add hug option if it doesn't exist
+        let hugOption = document.getElementById('ctxHug');
+        if (!hugOption) {
+            // Create hug option
+            hugOption = document.createElement('div');
+            hugOption.className = 'context-menu-item';
+            hugOption.id = 'ctxHug';
+            hugOption.textContent = 'Give a Hug';
+
+            // Insert after PM option
+            const pmOption = document.getElementById('ctxPM');
+            if (pmOption && pmOption.nextSibling) {
+                pmOption.parentNode.insertBefore(hugOption, pmOption.nextSibling);
+            } else if (pmOption) {
+                pmOption.parentNode.appendChild(hugOption);
+            }
+        }
+
         // Add slap option if it doesn't exist
         let slapOption = document.getElementById('ctxSlap');
         if (!slapOption) {
@@ -667,16 +711,17 @@ export class NYM {
             slapOption.id = 'ctxSlap';
             slapOption.textContent = 'Slap with Trout';
 
-            // Insert after PM option
-            const pmOption = document.getElementById('ctxPM');
-            if (pmOption && pmOption.nextSibling) {
-                pmOption.parentNode.insertBefore(slapOption, pmOption.nextSibling);
-            } else if (pmOption) {
-                pmOption.parentNode.appendChild(slapOption);
+            // Insert after hug option
+            const hugOption = document.getElementById('ctxHug');
+            if (hugOption && hugOption.nextSibling) {
+                hugOption.parentNode.insertBefore(slapOption, hugOption.nextSibling);
+            } else if (hugOption) {
+                hugOption.parentNode.appendChild(slapOption);
             }
         }
 
-        // Show slap option only if not yourself
+        // Show hug and slap options only if not yourself
+        hugOption.style.display = pubkey === this.pubkey ? 'none' : 'block';
         slapOption.style.display = pubkey === this.pubkey ? 'none' : 'block';
 
         // Add zap option handling
@@ -4900,9 +4945,9 @@ ${Object.entries(this.allEmojis).map(([category, emojis]) => `
         const isMentioned = !message.isOwn && this.isMentioned(message.content);
 
         // Check for action messages
-        if (message.content.startsWith('/me ')) {
+        if (message.content.startsWith('* ') && message.content.endsWith(' *')) {
             messageEl.className = 'action-message';
-            messageEl.innerHTML = `* ${this.escapeHtml(message.author)} ${this.formatMessage(message.content.substring(4))}`;
+            messageEl.innerHTML = this.formatMessage(message.content);
         } else {
             const classes = ['message'];
 
@@ -5578,6 +5623,7 @@ ${Object.entries(this.allEmojis).map(([category, emojis]) => `
             '/clear': { desc: 'Clear chat messages', fn: () => this.cmdClear() },
             '/block': { desc: 'Block a user or #channel', fn: (args) => this.cmdBlock(args) },
             '/unblock': { desc: 'Unblock a user', fn: (args) => this.cmdUnblock(args) },
+            '/hug': { desc: 'Give someone a hug', fn: (args) => this.cmdHug(args) },
             '/slap': { desc: 'Slap someone with a trout', fn: (args) => this.cmdSlap(args) },
             '/me': { desc: 'Action message', fn: (args) => this.cmdMe(args) },
             '/shrug': { desc: 'Send a shrug', fn: () => this.cmdShrug() },
@@ -6504,13 +6550,8 @@ ${Object.entries(this.allEmojis).map(([category, emojis]) => `
             });
         });
     }
-
-    async cmdSlap(args) {
-        if (!args) {
-            this.displaySystemMessage('Usage: /slap nym or /slap nym#xxxx');
-            return;
-        }
-
+        
+    findNym(args) {
         const targetInput = args.trim();
         const hashIndex = targetInput.indexOf('#');
         let searchNym = targetInput;
@@ -6545,9 +6586,29 @@ ${Object.entries(this.allEmojis).map(([category, emojis]) => `
             return;
         }
 
+        return matches.length > 0 ? matches[0].nym : searchNym;
+    }
+
+    async cmdHug(args) {
+        if (!args) {
+            this.displaySystemMessage('Usage: /hug nym or /hug nym#xxxx');
+            return;
+        }
+
         // Use the target nym for the action (without suffix for cleaner message)
-        const targetNym = matches.length > 0 ? matches[0].nym : searchNym;
-        await this.publishMessage(`/me slaps ${targetNym} around a bit with a large trout`);
+        const targetNym = this.findNym(args)
+        if (targetNym) await this.cmdMe(`gives ${targetNym} a warm hug 🫂`);
+    }
+
+    async cmdSlap(args) {
+        if (!args) {
+            this.displaySystemMessage('Usage: /slap nym or /slap nym#xxxx');
+            return;
+        }
+
+        // Use the target nym for the action (without suffix for cleaner message)
+        const targetNym = this.findNym(args)
+        if (targetNym) await this.cmdMe(`slaps ${targetNym} around a bit with a large trout 🐟`);
     }
 
     async cmdMe(args) {
@@ -6555,7 +6616,7 @@ ${Object.entries(this.allEmojis).map(([category, emojis]) => `
             this.displaySystemMessage('Usage: /me action');
             return;
         }
-        await this.publishMessage(`/me ${args}`);
+        await this.publishMessage(`* ${this.nym} ${args} *`);
     }
 
     async cmdShrug() {
