@@ -222,9 +222,12 @@
 
     <!-- Initial Setup Modal -->
     <div class="modal active" id="setupModal">
-        <div class="modal-content">
-            <div class="modal-header">Welcome to NYM<br /><label style="color: var(--warning); margin-top:5px;"
-                    class="form-label">Ephemeral, anonymous, decentralized chat</label></div>
+        <form class="modal-content" method="dialog" onsubmit="initializeNym()">
+            <div class="modal-header">Welcome to NYM<br />
+                <label style="color: var(--warning); margin-top:5px;" class="form-label">
+                    Ephemeral, anonymous, decentralized chat
+                </label>
+            </div>
             <div class="modal-body">
                 <div class="form-group">
                     <label class="form-label">Connection Mode</label>
@@ -261,9 +264,9 @@
                     Generating keypair...
                     <span class="loader"></span>
                 </div>
-                <button class="send-btn" onclick="initializeNym()">Enter NYM</button>
+                <button type="submit" class="send-btn">Enter NYM</button>
             </div>
-        </div>
+        </form>
     </div>
 
     <!-- Settings Modal -->

@@ -685,7 +685,7 @@ document.addEventListener('DOMContentLoaded', function () {
 
 // Setup event handling
 document.addEventListener('DOMContentLoaded', () => {
-    const events = ['click', 'input', 'keyup'];
+    const events = ['click', 'input', 'keyup', 'submit'];
 
     events.forEach(event => {
         // Get all elements with given attribute
