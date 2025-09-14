@@ -5626,6 +5626,7 @@ ${Object.entries(this.allEmojis).map(([category, emojis]) => `
             '/hug': { desc: 'Give someone a hug', fn: (args) => this.cmdHug(args) },
             '/slap': { desc: 'Slap someone with a trout', fn: (args) => this.cmdSlap(args) },
             '/me': { desc: 'Action message', fn: (args) => this.cmdMe(args) },
+            '/npub': { desc: 'Display user npub', fn: (args) => this.cmdNpub(args) },
             '/shrug': { desc: 'Send a shrug', fn: () => this.cmdShrug() },
             '/bold': { desc: 'Send bold text (**text**)', fn: (args) => this.cmdBold(args) },
             '/b': { desc: 'Shortcut for /bold', fn: (args) => this.cmdBold(args) },
@@ -6551,42 +6552,28 @@ ${Object.entries(this.allEmojis).map(([category, emojis]) => `
         });
     }
         
-    findNym(args) {
-        const targetInput = args.trim();
-        const hashIndex = targetInput.indexOf('#');
-        let searchNym = targetInput;
-        let searchSuffix = null;
-
-        if (hashIndex !== -1) {
-            searchNym = targetInput.substring(0, hashIndex);
-            searchSuffix = targetInput.substring(hashIndex + 1);
-        }
+    findUser(args) {
+        // remove extra whitespace and initial @ (if present), then split off suffix
+        const [searchNym, searchSuffix] = args.trim().split(/^@|#/).filter(s => s);
 
         // Find matching users
         const matches = [];
-        this.users.forEach((user, pubkey) => {
-            const baseNym = user.nym.split('#')[0] || user.nym;
-            if (baseNym === searchNym || baseNym.toLowerCase() === searchNym.toLowerCase()) {
-                if (searchSuffix) {
-                    if (pubkey.endsWith(searchSuffix)) {
-                        matches.push({ nym: user.nym, pubkey: pubkey });
-                    }
-                } else {
-                    matches.push({ nym: user.nym, pubkey: pubkey });
+        this.users.values().forEach((user) => {
+            if (user.nym.toLowerCase() === searchNym.toLowerCase()) {
+                if (!searchSuffix || user.pubkey.endsWith(searchSuffix)) {
+                    matches.push(user);
                 }
             }
         });
 
-        if (matches.length > 1 && !searchSuffix) {
-            const matchList = matches.map(m =>
-                `${this.formatNymWithPubkey(m.nym, m.pubkey)}`
-            ).join(', ');
+        if (!searchSuffix && matches.length > 1 ) {
+            const matchList = matches.map(m => `${this.formatNymWithPubkey(m.nym, m.pubkey)}`).join(', ');
             this.displaySystemMessage(`Multiple users found with nym "${searchNym}": ${matchList}`);
             this.displaySystemMessage('Please specify using the #xxxx suffix');
             return;
         }
 
-        return matches.length > 0 ? matches[0].nym : searchNym;
+        return matches.length > 0 ? matches[0] : { nym: searchNym };
     }
 
     async cmdHug(args) {
@@ -6596,8 +6583,9 @@ ${Object.entries(this.allEmojis).map(([category, emojis]) => `
         }
 
         // Use the target nym for the action (without suffix for cleaner message)
-        const targetNym = this.findNym(args)
-        if (targetNym) await this.cmdMe(`gives ${targetNym} a warm hug 🫂`);
+        const target = this.findUser(args);
+
+        if (target?.nym) await this.cmdMe(`gives ${target.nym} a warm hug 🫂`);
     }
 
     async cmdSlap(args) {
@@ -6607,8 +6595,9 @@ ${Object.entries(this.allEmojis).map(([category, emojis]) => `
         }
 
         // Use the target nym for the action (without suffix for cleaner message)
-        const targetNym = this.findNym(args)
-        if (targetNym) await this.cmdMe(`slaps ${targetNym} around a bit with a large trout 🐟`);
+        const target = this.findUser(args);
+
+        if (target?.nym) await this.cmdMe(`slaps ${target.nym} around a bit with a large trout 🐟`);
     }
 
     async cmdMe(args) {
@@ -6617,6 +6606,18 @@ ${Object.entries(this.allEmojis).map(([category, emojis]) => `
             return;
         }
         await this.publishMessage(`* ${this.nym} ${args} *`);
+    }
+
+    cmdNpub(args) {
+        if (!args) {
+            this.displaySystemMessage('Usage: /npub nym or /npub nym#xxxx');
+            return;
+        }
+
+        const target = this.findUser(args);
+        if ('pubkey' in target) {
+            this.displaySystemMessage(NostrTools.nip19.npubEncode(target.pubkey));
+        }
     }
 
     async cmdShrug() {
