@@ -6016,8 +6016,13 @@ ${Object.entries(this.allEmojis).map(([category, emojis]) => `
     showHelp() {
         const helpText = Object.entries(this.commands)
             .map(([cmd, info]) => `${cmd} - ${info.desc}`)
-            .join('\n');
-        this.displaySystemMessage(`Available commands:\n${helpText}\n\nMarkdown supported: **bold**, *italic*, ~~strikethrough~~, \`code\`, > quote\n\nType : to quickly pick an emoji\n\nNyms are shown as name#xxxx where xxxx is the last 4 characters of their pubkey\n\nClick on users for more options`);
+            .join('<br/>\n');
+        this.displaySystemMessage(`
+            Available commands:<p>\n${helpText}\n</p>\n
+            Markdown supported: **bold**, *italic*, ~~strikethrough~~, \`code\`, > quote\n<br/>\n
+            Type : to quickly pick an emoji\n<br/>\n
+            Nyms are shown as name#xxxx where xxxx is the last 4 characters of their pubkey\n<br/>\n
+            Click on users for more options`);
     }
 
     async cmdJoin(args) {
