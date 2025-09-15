@@ -6,11 +6,11 @@ import { getPublicKey } from 'nostr-tools'
 const nym = new NYM();
 
 // Global functions for onclick handlers
-function toggleSidebar() {
+window.toggleSidebar = function() {
     nym.toggleSidebar();
 }
 
-function toggleSearch(inputId) {
+window.toggleSearch = function(inputId) {
     const search = document.getElementById(inputId);
     search.classList.toggle('active');
     if (search.classList.contains('active')) {
@@ -18,28 +18,28 @@ function toggleSearch(inputId) {
     }
 }
 
-function sendMessage() {
+window.sendMessage = function() {
     nym.sendMessage();
 }
 
-function selectImage() {
+window.selectImage = function() {
     document.getElementById('fileInput').click();
 }
 
-function closeModal(id) {
+window.closeModal = function(id) {
     document.getElementById(id).classList.remove('active');
 }
 
-function closeImageModal() {
+window.closeImageModal = function() {
     document.getElementById('imageModal').classList.remove('active');
 }
 
-function editNick() {
+window.editNick = function() {
     document.getElementById('newNickInput').value = nym.nym;
     document.getElementById('nickEditModal').classList.add('active');
 }
 
-function changeNick() {
+window.changeNick = function() {
     const newNick = document.getElementById('newNickInput').value.trim();
     if (newNick && newNick !== nym.nym) {
         nym.cmdNick(newNick);
@@ -47,7 +47,7 @@ function changeNick() {
     closeModal('nickEditModal');
 }
 
-async function changeRelay() {
+window.changeRelay = async function() {
     const relaySelect = document.getElementById('connectedRelaySelect').value;
     const customRelay = document.getElementById('customConnectedRelay').value;
 
@@ -62,7 +62,7 @@ async function changeRelay() {
     await nym.connectToRelay(newRelayUrl);
 }
 
-function showSettings() {
+window.showSettings = function() {
     nym.updateRelayStatus();
 
     // Load lightning address
@@ -87,7 +87,7 @@ function showSettings() {
     document.getElementById('settingsModal').classList.add('active');
 }
 
-async function saveSettings() {
+window.saveSettings = async function() {
     // Get all settings values
     const lightningAddress = document.getElementById('lightningAddressInput').value.trim();
     const theme = document.getElementById('themeSelect').value;
@@ -166,7 +166,7 @@ async function saveSettings() {
     closeModal('settingsModal');
 }
 
-function showAbout() {
+window.showAbout = function() {
     const connectedRelays = nym.relayPool.size;
     nym.displaySystemMessage(`
 ═══ NYM - Nostr Ynstant Messenger v1.9.12 ═══<br>
@@ -185,11 +185,11 @@ Made with ♥ by <a href="https://nostr.band/npub16jdfqgazrkapk0yrqm9rdxlnys7ck3
 `);
 }
 
-function showChannelModal() {
+window.showChannelModal = function() {
     document.getElementById('channelModal').classList.add('active');
 }
 
-async function joinChannel() {
+window.joinChannel = async function() {
     const channelType = document.getElementById('channelTypeSelect').value;
 
     if (channelType === 'standard') {
@@ -320,7 +320,7 @@ async function checkSavedConnection() {
     // If no saved connection, modal already has 'active' class from HTML
 }
 
-async function initializeNym() {
+window.initializeNym = async function() {
     try {
         const mode = document.getElementById('connectionMode').value;
         nym.connectionMode = mode; // Store connection mode
@@ -436,7 +436,7 @@ async function initializeNym() {
 }
 
 // Disconnect/logout function
-function disconnectNym() {
+window.disconnectNym = function() {
     // Clear saved connection
     localStorage.removeItem('nym_connection_mode');
     localStorage.removeItem('nym_relay_url');
@@ -451,7 +451,7 @@ function disconnectNym() {
 }
 
 // Sign-out button
-function signOut() {
+window.signOut = function() {
     if (confirm('Sign out and disconnect from NYM?')) {
         nym.cmdQuit();
     }
@@ -697,9 +697,7 @@ document.addEventListener('DOMContentLoaded', () => {
                 const eventHandler = new Function('event', handler);
 
                 // Attach the event handler to the element 
-                element.addEventListener(event, function() {
-                    eval(handler);
-                });
+                element.addEventListener(event, eventHandler);
 
                 // Remove the attribute
                 element.removeAttribute(`on${event}`);
