@@ -3,7 +3,7 @@ import { NYM } from './nym.js'
 import { getPublicKey } from 'nostr-tools'
 
 // Global instance
-const nym = new NYM();
+window.nym = new NYM();
 
 // Global functions for onclick handlers
 window.toggleSidebar = function() {
