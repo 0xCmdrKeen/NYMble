@@ -169,7 +169,7 @@ window.saveSettings = async function() {
 window.showAbout = function() {
     const connectedRelays = nym.relayPool.size;
     nym.displaySystemMessage(`
-═══ NYM - Nostr Ynstant Messenger v1.9.12 ═══<br>
+═══ NYM - Nostr Ynstant Messenger v1.9.13 ═══<br>
 Protocol: <a href="https://nostr.com" target="_blank" rel="noopener" style="color: var(--secondary)">Nostr</a> (kinds 20000 and 23333 channels)<br>
 Connected Relays: ${connectedRelays} relays<br>
 Your nym: ${nym.nym || 'Not set'}<br>
@@ -681,6 +681,28 @@ document.addEventListener('DOMContentLoaded', function () {
             userList.classList.remove('list-expanded');
         }
     };
+
+    setInterval(() => {
+        // Clean up stored messages for inactive channels
+        const currentKey = nym.currentGeohash ? `#${nym.currentGeohash}` : nym.currentChannel;
+
+        nym.messages.forEach((messages, channel) => {
+            // Skip current channel
+            if (channel === currentKey) return;
+
+            // Prune inactive channels to 500 messages max
+            if (messages.length > 500) {
+                nym.messages.set(channel, messages.slice(-500));
+                console.log(`Background pruned ${channel} to 500 messages`);
+            }
+        });
+
+        // Clear event deduplication if too large
+        if (nym.eventDeduplication.size > 5000) {
+            nym.eventDeduplication.clear();
+            console.log('Cleared event deduplication cache');
+        }
+    }, 60000);
 });
 
 // Setup event handling

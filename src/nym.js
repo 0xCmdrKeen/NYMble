@@ -4412,9 +4412,22 @@ ${Object.entries(this.allEmojis).map(([category, emojis]) => `
         const container = document.getElementById('messagesContainer');
         container.innerHTML = '';
 
-        const pmMessages = this.pmMessages.get(conversationKey) || [];
+        let pmMessages = this.pmMessages.get(conversationKey) || [];
 
-        // Only show messages that are part of this specific conversation
+        // Limit PM messages to prevent memory issues
+        const maxPMMessages = 500;
+        const originalCount = pmMessages.length;
+
+        // If we have too many messages, prune the stored array
+        if (pmMessages.length > maxPMMessages) {
+            // Keep only the most recent messages
+            pmMessages = pmMessages.slice(-maxPMMessages);
+            // Update the stored messages
+            this.pmMessages.set(conversationKey, pmMessages);
+            console.log(`Pruned PM conversation from ${originalCount} to ${maxPMMessages} messages`);
+        }
+
+        // Filter messages that are part of this specific conversation
         const filteredMessages = pmMessages.filter(msg => {
             // Check if message is from blocked user
             if (this.blockedUsers.has(msg.author) || msg.blocked) {
@@ -4434,6 +4447,15 @@ ${Object.entries(this.allEmojis).map(([category, emojis]) => `
         // Sort messages by timestamp
         filteredMessages.sort((a, b) => a.timestamp - b.timestamp);
 
+        // If we pruned messages, show a notice
+        if (originalCount > maxPMMessages) {
+            const loadMoreDiv = document.createElement('div');
+            loadMoreDiv.className = 'system-message';
+            loadMoreDiv.style.cssText = 'cursor: pointer; color: var(--text-dim); font-size: 12px;';
+            loadMoreDiv.textContent = `Showing most recent ${maxPMMessages} messages (${originalCount - maxPMMessages} older messages hidden for performance)`;
+            container.appendChild(loadMoreDiv);
+        }
+
         // Display only these filtered messages
         filteredMessages.forEach(msg => {
             // Double-check this is a PM before displaying
@@ -4449,7 +4471,10 @@ ${Object.entries(this.allEmojis).map(([category, emojis]) => `
 
         // Scroll to bottom
         if (this.settings.autoscroll) {
-            container.scrollTop = container.scrollHeight;
+            // Use setTimeout to ensure DOM has updated
+            setTimeout(() => {
+                container.scrollTop = container.scrollHeight;
+            }, 0);
         }
     }
 
@@ -4891,10 +4916,27 @@ ${Object.entries(this.allEmojis).map(([category, emojis]) => `
 
                 // Prune messages if exceeding limit (1000 max)
                 const messages = this.messages.get(storageKey);
-                if (messages.length > 10000) {
-                    // Keep only the most recent 10,000 messages
-                    this.messages.set(storageKey, messages.slice(-1000));
-                    console.log(`Pruned messages in ${storageKey} to 1000 max`);
+                if (messages && messages.length > 1000) {
+                    // Keep only the most recent 1000 messages
+                    const prunedMessages = messages.slice(-1000);
+                    this.messages.set(storageKey, prunedMessages);
+
+                    // Also prune DOM if currently viewing this channel
+                    const currentKey = this.currentGeohash ? `#${this.currentGeohash}` : this.currentChannel;
+                    if (currentKey === storageKey) {
+                        const container = document.getElementById('messagesContainer');
+                        const messageDOMs = container.querySelectorAll('.message[data-message-id]');
+
+                        // Remove old DOM elements beyond 1000
+                        const toRemove = messageDOMs.length - 1000;
+                        if (toRemove > 0) {
+                            for (let i = 0; i < toRemove; i++) {
+                                messageDOMs[i].remove();
+                            }
+                        }
+                    }
+
+                    console.log(`Pruned ${messages.length - 1000} messages from ${storageKey}`);
                 }
             }
 
@@ -6989,13 +7031,39 @@ ${Object.entries(this.allEmojis).map(([category, emojis]) => `
         container.innerHTML = '';
 
         const storageKey = this.currentGeohash ? `#${this.currentGeohash}` : this.currentChannel;
-        const channelMessages = this.messages.get(storageKey) || [];
+        let channelMessages = this.messages.get(storageKey) || [];
+
+        // Limit display to prevent freezing
+        const maxDisplayMessages = 500;
+        const originalCount = channelMessages.length;
 
         // Sort messages by timestamp
         channelMessages.sort((a, b) => a.timestamp - b.timestamp);
 
+        // Get only the most recent messages for display
+        const messagesToDisplay = channelMessages.slice(-maxDisplayMessages);
+
+        // If we have more messages than we're displaying, show a notice
+        if (originalCount > maxDisplayMessages) {
+            const loadMoreDiv = document.createElement('div');
+            loadMoreDiv.className = 'system-message';
+            loadMoreDiv.style.cssText = 'cursor: pointer; color: var(--text-dim); font-size: 12px; text-align: center; padding: 10px;';
+            loadMoreDiv.textContent = `Showing most recent ${maxDisplayMessages} messages (${originalCount - maxDisplayMessages} older messages available)`;
+            loadMoreDiv.onclick = () => {
+                // Load all messages (with a warning)
+                if (originalCount > 1000) {
+                    if (confirm(`Loading ${originalCount} messages may slow down your browser. Continue?`)) {
+                        this.displayAllChannelMessages(storageKey);
+                    }
+                } else {
+                    this.displayAllChannelMessages(storageKey);
+                }
+            };
+            container.appendChild(loadMoreDiv);
+        }
+
         // Display messages, filtering out blocked users
-        channelMessages.forEach(msg => {
+        messagesToDisplay.forEach(msg => {
             if (!this.blockedUsers.has(msg.author) && !msg.blocked) {
                 this.displayMessage(msg);
             }
@@ -7004,6 +7072,52 @@ ${Object.entries(this.allEmojis).map(([category, emojis]) => `
         if (channelMessages.length === 0) {
             this.displaySystemMessage(`Joined ${displayName}`);
         }
+
+        // Scroll to bottom after rendering
+        if (this.settings.autoscroll) {
+            setTimeout(() => {
+                container.scrollTop = container.scrollHeight;
+            }, 0);
+        }
+    }
+
+    displayAllChannelMessages(storageKey) {
+        const container = document.getElementById('messagesContainer');
+        container.innerHTML = '';
+
+        const channelMessages = this.messages.get(storageKey) || [];
+
+        // Show loading indicator for large sets
+        if (channelMessages.length > 1000) {
+            this.displaySystemMessage('Loading all messages...');
+        }
+
+        // Use requestAnimationFrame to prevent blocking
+        let index = 0;
+        const batchSize = 50;
+
+        const renderBatch = () => {
+            const batch = channelMessages.slice(index, index + batchSize);
+
+            batch.forEach(msg => {
+                if (!this.blockedUsers.has(msg.author) && !msg.blocked) {
+                    this.displayMessage(msg);
+                }
+            });
+
+            index += batchSize;
+
+            if (index < channelMessages.length) {
+                requestAnimationFrame(renderBatch);
+            } else {
+                // Finished loading all
+                if (this.settings.autoscroll) {
+                    container.scrollTop = container.scrollHeight;
+                }
+            }
+        };
+
+        requestAnimationFrame(renderBatch);
     }
 
     addChannel(channel, geohash = '') {
